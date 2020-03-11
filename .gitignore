@@ -1,0 +1,7 @@
+.*
+!.gitignore
+**/target/*
+*.iml
+
+src/main/resources/theme/**/*.css
+src/main/resources/theme/**/*.css.map
