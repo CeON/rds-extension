@@ -18,8 +18,8 @@ Social Data Repository extensions that can plugged into dataverse instance
        rm -r /tmp/rds-extension-<VERSION>
 
  - At last you will need to tell dataverse that you will be using custom theme by modifying configuration param: `CustomThemeCssFilename` to a value: `theme_rds.css`
- 
- 
+
+
 
 > Note that this theme is generated using scss compiler using original scss theme by overriding some of the variables. 
 > Currently scss compiler depends on the existence of the original theme scss inside source code of this repository. As a result it is required to copy original theme scss to this repository when it changes. 
