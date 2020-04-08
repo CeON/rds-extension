@@ -3,8 +3,11 @@
  - Copy all images to the specified location:
 
         [glassfish_directory]/domains/domain1/docroot/logos/
+        
+
+- Copy the `dataverse.default.properites` file to your `~/.dataverse/` folder, and change the file name to `dataverse.properites` (if you haven't already done so)
 
 
-- Configure your Dataverse installation to make use of the supplied `footer_logos_rds.html` file:
+- Edit the `~/.dataverse/dataverse.properites` file by adding the path to the footer HTMl file in the line `FooterCustomizationFile=`:
 
-        curl -X PUT -d 'footer_logos_rds.html' [dataverse_web_address]/api/admin/settings/:FooterCustomizationFile
+        FooterCustomizationFile=[path_to_html_file]
