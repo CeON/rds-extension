@@ -1,3 +1,4 @@
+/* RDS color scheme */
 
 $main-color: #ab2000;
 $icon-color: #f6921e;
@@ -14,4 +15,4 @@ $ajax_spinner_filter: hue-rotate(170deg) saturate(2);
 $dataverse-icon-mono: "\f200";
 $main-logo-mono: "\f203";
 
-@import "theme.scss"
+@import "theme-base.scss";
