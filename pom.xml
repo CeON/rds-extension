@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <war.source.directory>${project.build.directory}/generated-webapp</war.source.directory>
         <war.theme.path>resources/vecler</war.theme.path>
+        <war.icon.path>resources/images</war.icon.path>
     </properties>
 
     <dependencies>
@@ -39,7 +40,7 @@
                         </goals>
                         <configuration>
                             <includeTypes>war</includeTypes>
-                            <includes>${war.theme.path}/**</includes>
+                            <includes>${war.theme.path}/**,${war.icon.path}/**</includes>
                             <outputDirectory>${war.source.directory}</outputDirectory>
                         </configuration>
                     </execution>
@@ -63,6 +64,23 @@
                                 </resource>
                             </resources>
                             <outputDirectory>${war.source.directory}/${war.theme.path}</outputDirectory>
+                            <overwrite>true</overwrite>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-icon</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/webapp/resources/images</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${war.source.directory}/${war.icon.path}</outputDirectory>
                             <overwrite>true</overwrite>
                         </configuration>
                     </execution>
@@ -118,6 +136,7 @@
                             <artifactId>dataverse-webapp</artifactId>
                             <excludes>
                                 <exclude>${war.theme.path}/**</exclude>
+                                <exclude>${war.icon.path}/**</exclude>
                             </excludes>
                         </overlay>
                         <overlay>
