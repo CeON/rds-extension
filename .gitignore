@@ -5,3 +5,4 @@
 
 src/main/theme/**/*.css
 src/main/theme/**/*.css.map
+/target/
