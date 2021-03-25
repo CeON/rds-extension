@@ -1,5 +1,8 @@
-package edu.harvard.iq.dataverse.citation;
+package pl.edu.icm.rds.extension.citation;
 
+import edu.harvard.iq.dataverse.citation.AbstractCitationFormatsConverter;
+import edu.harvard.iq.dataverse.citation.CitationData;
+import edu.harvard.iq.dataverse.citation.CitationLocalizedConstantsService;
 import edu.harvard.iq.dataverse.citation.CitationLocalizedConstantsService.Constants;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +55,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         citation.add(getConstant(Constants.DATA)).endPart(". ");
 
         if (!data.getProducers().isEmpty()) {
-            citation.add(joinProducers(data)).endPart(StringUtils.EMPTY)
+            citation.value(joinProducers(data)).endPart(StringUtils.EMPTY)
                     .add(", ").value(data.getProductionPlace()).endPart(StringUtils.EMPTY)
                     .add(", ").value(data.getProductionDate()).endPart(StringUtils.EMPTY)
                     .endPart(". ");

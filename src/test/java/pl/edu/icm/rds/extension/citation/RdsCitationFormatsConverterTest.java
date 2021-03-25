@@ -1,5 +1,7 @@
-package edu.harvard.iq.dataverse.citation;
+package pl.edu.icm.rds.extension.citation;
 
+import edu.harvard.iq.dataverse.citation.CitationData;
+import edu.harvard.iq.dataverse.citation.CitationLocalizedConstantsService;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
