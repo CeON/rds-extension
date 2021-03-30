@@ -1,19 +1,21 @@
 package pl.edu.icm.rds.extension.citation;
 
 import edu.harvard.iq.dataverse.citation.CitationData;
-import edu.harvard.iq.dataverse.citation.CitationLocalizedConstantsService;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 class RdsCitationFormatsConverterTest {
 
-    private RdsCitationFormatsConverter converter = new RdsCitationFormatsConverter(new CitationLocalizedConstantsService());
+    private RdsCitationFormatsConverter converter = new RdsCitationFormatsConverter();
+
+    private static final Locale TEST_LOCALE = Locale.ENGLISH;
 
     // -------------------- TESTS --------------------
 
@@ -25,7 +27,7 @@ class RdsCitationFormatsConverterTest {
         CitationData citationData = createFullCitationData();
 
         // when
-        String bibtex = converter.toBibtexString(citationData);
+        String bibtex = converter.toBibtexString(citationData, TEST_LOCALE);
 
         // then
         assertThat(bibtex).isEqualTo("@misc{ZENON_2019,\r\n" +
@@ -52,7 +54,7 @@ class RdsCitationFormatsConverterTest {
 
 
         // when
-        String ris = converter.toRISString(citationData);
+        String ris = converter.toRISString(citationData, TEST_LOCALE);
 
         // then
         assertThat(ris).isEqualTo("TY  - DATA\r\n" +
@@ -77,7 +79,7 @@ class RdsCitationFormatsConverterTest {
 
 
         // when
-        String endNote = converter.toEndNoteString(citationData);
+        String endNote = converter.toEndNoteString(citationData, TEST_LOCALE);
 
         // then
         assertThat(endNote).isEqualTo("<?xml version='1.0' encoding='UTF-8'?>" +
@@ -127,7 +129,7 @@ class RdsCitationFormatsConverterTest {
 
 
         // when
-        String citation = converter.toString(citationData, false);
+        String citation = converter.toString(citationData, TEST_LOCALE, false);
 
         // then
         assertThat(citation)
