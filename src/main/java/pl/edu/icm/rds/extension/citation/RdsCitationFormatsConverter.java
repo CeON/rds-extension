@@ -1,9 +1,9 @@
 package pl.edu.icm.rds.extension.citation;
 
 import edu.harvard.iq.dataverse.citation.AbstractCitationFormatsConverter;
+import edu.harvard.iq.dataverse.citation.CitationConstants;
 import edu.harvard.iq.dataverse.citation.CitationData;
-import edu.harvard.iq.dataverse.citation.CitationLocalizedConstantsService;
-import edu.harvard.iq.dataverse.citation.CitationLocalizedConstantsService.Constants;
+import edu.harvard.iq.dataverse.common.BundleUtil;
 import edu.harvard.iq.dataverse.persistence.GlobalId;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Priority;
 import javax.ejb.EJBException;
 import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,20 +29,10 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverter {
     private static final Logger logger = LoggerFactory.getLogger(RdsCitationFormatsConverter.class);
 
-    private CitationLocalizedConstantsService localizedConstantsService;
-
-    // -------------------- CONSTRUCTORS --------------------
-
-    @Inject
-    public RdsCitationFormatsConverter(CitationLocalizedConstantsService localizedConstantsService) {
-        this.localizedConstantsService = localizedConstantsService;
-    }
-
-
     // -------------------- LOGIC --------------------
 
     @Override
-    public String toString(CitationData data, boolean escapeHtml) {
+    public String toString(CitationData data, Locale locale, boolean escapeHtml) {
         CitationBuilder citation = new CitationBuilder(escapeHtml);
 
         citation.value(data.getAuthorsString()).endPart(": ");
@@ -52,10 +42,10 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         } else {
             citation.add("\"").value(data.getTitle()).add("\"");
         }
-        citation.add(getConstant(Constants.DATA)).endPart(". ");
+        citation.add(getConstant(CitationConstants.DATA, locale)).endPart(". ");
 
         if (!data.getProducers().isEmpty()) {
-            citation.value(joinProducers(data)).endPart(StringUtils.EMPTY)
+            citation.value(joinProducers(data, locale)).endPart(StringUtils.EMPTY)
                     .add(", ").value(data.getProductionPlace()).endPart(StringUtils.EMPTY)
                     .add(", ").value(data.getProductionDate()).endPart(StringUtils.EMPTY)
                     .endPart(". ");
@@ -63,9 +53,9 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         citation.value(data.getOtherIds().stream()
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.joining(", "))).endPart(". ")
-                .value(joinDistributors(data)).endPart()
+                .value(joinDistributors(data, locale)).endPart()
                 .value(data.getRootDataverseName())
-                    .add(getConstant(Constants.PUBLISHER)).endPart()
+                    .add(getConstant(CitationConstants.PUBLISHER, locale)).endPart()
                 .rawValue(data.getReleaseYear()).endPart(". ");
         String pid = extractPersistentIdUrl(data);
         citation.urlValue(pid, pid).endPart()
@@ -74,7 +64,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
     }
 
     @Override
-    public String toBibtexString(CitationData data) {
+    public String toBibtexString(CitationData data, Locale locale) {
         GlobalId pid = data.getPersistentId();
         BibTeXCitationBuilder bibtex = new BibTeXCitationBuilder()
                 .add(data.getFileTitle() != null && data.isDirect() ? "@incollection{" : "@misc{")
@@ -88,19 +78,19 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         if (!data.getLanguages().isEmpty()) {
             bibtex.line("language", data.getLanguages().get(0));
         }
-        bibtex.line("publisher", createPublishingData(data, true));
+        bibtex.line("publisher", createPublishingData(data, locale, true));
         if (data.getFileTitle() != null && data.isDirect()) {
             bibtex.line("title", data.getFileTitle())
                     .line("booktitle", data.getTitle(),
                             s -> bibtex.mapValue(s, "{",
-                                    getConstant(Constants.DATA) + "}, "));
+                                    getConstant(CitationConstants.DATA, locale) + "}, "));
         } else {
             bibtex.line("title",
                     data.getTitle()
                             .replaceFirst("\"", "``")
                             .replaceFirst("\"", "''"),
                     s -> bibtex.mapValue(s, "\"{",
-                            getConstant(Constants.DATA) + "}\","));
+                            getConstant(CitationConstants.DATA, locale) + "}\","));
         }
         if (data.getUNF() != null) {
             bibtex.line("UNF", data.getUNF());
@@ -113,15 +103,15 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
     }
 
     @Override
-    public String toRISString(CitationData data) {
+    public String toRISString(CitationData data, Locale locale) {
         RISCitationBuilder ris = new RISCitationBuilder()
                 .line("TY  - DATA")
                 .lines("AU", data.getAuthors());
         if ((data.getFileTitle() != null) && data.isDirect()) {
             ris.line("T1", data.getFileTitle())
-                    .line("T2", data.getTitle() + getConstant(Constants.DATA));
+                    .line("T2", data.getTitle() + getConstant(CitationConstants.DATA, locale));
         } else {
-            ris.line("T1", data.getTitle() + getConstant(Constants.DATA));
+            ris.line("T1", data.getTitle() + getConstant(CitationConstants.DATA, locale));
         }
         if (data.getSeriesTitle() != null) {
             ris.line("T3", data.getSeriesTitle());
@@ -136,7 +126,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .line("UR", extractPersistentIdUrl(data));
         }
         ris.line("ET", data.getVersion())
-                .line("PB", createPublishingData(data, productionDateAvailable));
+                .line("PB", createPublishingData(data, locale, productionDateAvailable));
         if (data.getFileTitle() != null) {
             if (!data.isDirect()) {
                 ris.line("C1", data.getFileTitle());
@@ -150,12 +140,12 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
     }
 
     @Override
-    public String toEndNoteString(CitationData data) {
+    public String toEndNoteString(CitationData data, Locale locale) {
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter xmlw = null;
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             xmlw = xmlOutputFactory.createXMLStreamWriter(buffer);
-            createEndNoteXML(data, xmlw);
+            createEndNoteXML(data, locale, xmlw);
             return buffer.toString();
         } catch (XMLStreamException | IOException e) {
             logger.error("", e);
@@ -173,7 +163,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
 
     // -------------------- PRIVATE --------------------
 
-    private void createEndNoteXML(CitationData data, XMLStreamWriter xmlw) throws XMLStreamException {
+    private void createEndNoteXML(CitationData data, Locale locale, XMLStreamWriter xmlw) throws XMLStreamException {
         EndNoteCitationBuilder xml = new EndNoteCitationBuilder(xmlw);
         xml.start()
                 .startTag("xml")
@@ -190,9 +180,9 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         xml.startTag("titles");
         if ((data.getFileTitle() != null) && data.isDirect()) {
             xml.addTagWithValue("title", data.getFileTitle())
-                    .addTagWithValue("secondary-title", data.getTitle() + getConstant(Constants.DATA));
+                    .addTagWithValue("secondary-title", data.getTitle() + getConstant(CitationConstants.DATA, locale));
         } else {
-            xml.addTagWithValue("title", data.getTitle() + getConstant(Constants.DATA));
+            xml.addTagWithValue("title", data.getTitle() + getConstant(CitationConstants.DATA, locale));
         }
         if (data.getSeriesTitle() != null) {
             xml.addTagWithValue("tertiary-title", data.getSeriesTitle());
@@ -202,7 +192,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .startTag("dates")
                 .addTagWithValue("year", data.getYear())
                 .endTag() // dates
-                .addTagWithValue("publisher", createPublishingData(data, true))
+                .addTagWithValue("publisher", createPublishingData(data, locale, true))
                 .addTagWithValue("edition", data.getVersion());
 
         if (!data.getLanguages().isEmpty()) {
@@ -232,29 +222,29 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .end();
     }
 
-    private String joinDistributors(CitationData data) {
+    private String joinDistributors(CitationData data, Locale locale) {
         return data.getDistributors().stream()
-                .map(d -> d + getConstant(Constants.DISTRIBUTOR))
+                .map(d -> d + getConstant(CitationConstants.DISTRIBUTOR, locale))
                 .collect(Collectors.joining(", "));
     }
 
-    private String joinProducers(CitationData data) {
+    private String joinProducers(CitationData data, Locale locale) {
         return data.getProducers().stream()
                 .map(p -> isNotBlank(p.getAffiliation())
                         ? p.getName() + ", " + p.getAffiliation()
                         : p.getName())
-                .map(p -> p + getConstant(Constants.PRODUCER))
+                .map(p -> p + getConstant(CitationConstants.PRODUCER, locale))
                 .collect(Collectors.joining(", "));
     }
 
-    private String createPublishingData(CitationData data, boolean useReleaseDate) {
+    private String createPublishingData(CitationData data, Locale locale, boolean useReleaseDate) {
         String producers = !data.getProducers().isEmpty()
-                ? Stream.of(joinProducers(data), data.getProductionPlace())
+                ? Stream.of(joinProducers(data, locale), data.getProductionPlace())
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.joining(", ")) + ". "
                 : "";
-        String citationEnd = Stream.of(joinDistributors(data),
-                data.getRootDataverseName() + getConstant(Constants.PUBLISHER),
+        String citationEnd = Stream.of(joinDistributors(data, locale),
+                data.getRootDataverseName() + getConstant(CitationConstants.PUBLISHER, locale),
                 useReleaseDate ? data.getReleaseYear() : "")
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.joining(", "));
@@ -268,7 +258,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .orElse(StringUtils.EMPTY);
     }
 
-    private String getConstant(Constants constant) {
-        return " " + localizedConstantsService.get(constant);
+    private String getConstant(CitationConstants constant, Locale locale) {
+        return " [" + BundleUtil.getStringFromBundleWithLocale(constant.getKey(), locale) + "]";
     }
 }
