@@ -35,13 +35,35 @@ class RdsCitationFormatsConverterTest {
                 "doi = {10.18150/ZENON},\r\n" +
                 "edition = {V1},\r\n" +
                 "keywords = {Keyword I, Keyword II},\r\n" +
-                "language = {polish},\r\n" +
-                "publisher = {Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. " +
-                "Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021},\r\n" +
-                "title = \"{Title [data]}\",\r\n" +
+                "publisher = {Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021},\r\n" +
+                "title = {Title [data]},\r\n" +
                 "url = {https://doi.org/10.18150/ZENON}\r\n" +
-                "year = {2019},\r\n" +
+                "year = {2001},\r\n" +
                 "note = {Edition: V1},\r\n" +
+                "}\r\n");
+    }
+
+    @Test
+    @DisplayName("Should create BibTeX citation for file")
+    void toBibtexString__file() {
+
+        // given
+        CitationData citationData = createFullCitationDataForFile();
+
+        // when
+        String bibtex = converter.toBibtexString(citationData, TEST_LOCALE);
+
+        // then
+        assertThat(bibtex).isEqualTo("@misc{ZENON_2019,\r\n" +
+                "author = {Author, The First and Author, The Second},\r\n" +
+                "doi = {10.18150/ZENON},\r\n" +
+                "edition = {V1},\r\n" +
+                "keywords = {Keyword I, Keyword II},\r\n" +
+                "publisher = {Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021},\r\n" +
+                "title = {Title [data]},\r\n" +
+                "url = {https://doi.org/10.18150/ZENON}\r\n" +
+                "year = {2001},\r\n" +
+                "note = {Edition: V1; File Name [file name], doi:10.18150/ZENON_F},\r\n" +
                 "}\r\n");
     }
 
@@ -61,12 +83,40 @@ class RdsCitationFormatsConverterTest {
                 "AU  - Author, The First\r\n" +
                 "AU  - Author, The Second\r\n" +
                 "T1  - Title [data]\r\n" +
-                "PY  - 2001\r\n" +
+                "LA  - polish\r\n" +
+                "LA  - italian\r\n" +
+                "PY  - 2001///\r\n" +
                 "DO  - doi:10.18150/ZENON\r\n" +
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
                 "ET  - V1\r\n" +
-                "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], " +
-                "Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
+                "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
+                "ER  - \r\n");
+    }
+
+    @Test
+    @DisplayName("Should create RIS citation for file")
+    void toRISString__file() {
+
+        // given
+        CitationData citationData = createFullCitationDataForFile();
+
+
+        // when
+        String ris = converter.toRISString(citationData, TEST_LOCALE);
+
+        // then
+        assertThat(ris).isEqualTo("TY  - DATA\r\n" +
+                "AU  - Author, The First\r\n" +
+                "AU  - Author, The Second\r\n" +
+                "T1  - Title [data]\r\n" +
+                "T2  - File Name\r\n" +
+                "LA  - polish\r\n" +
+                "LA  - italian\r\n" +
+                "PY  - 2001///\r\n" +
+                "DO  - doi:10.18150/ZENON\r\n" +
+                "UR  - https://doi.org/10.18150/ZENON\r\n" +
+                "ET  - V1\r\n" +
+                "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
                 "ER  - \r\n");
     }
 
@@ -83,41 +133,80 @@ class RdsCitationFormatsConverterTest {
 
         // then
         assertThat(endNote).isEqualTo("<?xml version='1.0' encoding='UTF-8'?>" +
-                "<xml>" +
-                  "<records>" +
-                    "<record>" +
-                        "<ref-type name=\"Dataset\">59</ref-type>" +
-                        "<contributors>" +
-                          "<authors>" +
-                            "<author>Author, The First</author>" +
-                            "<author>Author, The Second</author>" +
-                          "</authors>" +
-                        "</contributors>" +
-                        "<titles>" +
-                          "<title>Title [data]</title>" +
-                        "</titles>" +
-                        "<keywords>" +
-                          "<keyword>Keyword I</keyword>" +
-                          "<keyword>Keyword II</keyword>" +
-                        "</keywords>" +
-                        "<dates>" +
-                          "<year>2019</year>" +
-                        "</dates>" +
-                        "<publisher>" +
-                          "Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], " +
-                          "Distributor 2 [distributor], Dataverse [publisher], 2021" +
-                        "</publisher>" +
-                        "<edition>V1</edition>" +
-                        "<language>polish</language>" +
-                        "<urls>" +
-                          "<web-urls>" +
-                            "<url>https://doi.org/10.18150/ZENON</url>" +
-                          "</web-urls>" +
-                        "</urls>" +
-                        "<electronic-resource-num>doi/10.18150/ZENON</electronic-resource-num>" +
-                    "</record>" +
-                  "</records>" +
-                "</xml>");
+                        "<xml>" +
+                          "<records>" +
+                            "<record>" +
+                              "<ref-type name=\"Dataset\">59</ref-type>" +
+                              "<contributors>" +
+                                "<authors>" +
+                                  "<author>Author, The First</author>" +
+                                  "<author>Author, The Second</author>" +
+                                "</authors>" +
+                              "</contributors>" +
+                              "<titles><title>Title [data]</title></titles>" +
+                              "<keywords>" +
+                                "<keyword>Keyword I</keyword>" +
+                                "<keyword>Keyword II</keyword>" +
+                              "</keywords>" +
+                              "<dates><year>2001</year></dates>" +
+                              "<publisher>Producer 1, ABC [producer], Producer 2, BCD [producer], " +
+                                "Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], " +
+                                "Dataverse [publisher], 2021" +
+                              "</publisher>" +
+                              "<edition>V1</edition>" +
+                              "<language>polish</language>" +
+                              "<language>italian</language>" +
+                              "<urls><web-urls><url>https://doi.org/10.18150/ZENON</url></web-urls></urls>" +
+                              "<electronic-resource-num>doi/10.18150/ZENON</electronic-resource-num>" +
+                            "</record>" +
+                          "</records>" +
+                        "</xml>");
+    }
+
+    @Test
+    @DisplayName("Should create EndNote citation for file")
+    void toEndNoteString__file() {
+
+        // given
+        CitationData citationData = createFullCitationDataForFile();
+
+
+        // when
+        String endNote = converter.toEndNoteString(citationData, TEST_LOCALE);
+
+        // then
+        assertThat(endNote).isEqualTo("<?xml version='1.0' encoding='UTF-8'?>" +
+                        "<xml>" +
+                          "<records>" +
+                            "<record>" +
+                              "<ref-type name=\"Dataset\">59</ref-type>" +
+                              "<contributors>" +
+                                "<authors>" +
+                                  "<author>Author, The First</author>" +
+                                  "<author>Author, The Second</author>" +
+                                "</authors>" +
+                              "</contributors>" +
+                              "<titles>" +
+                                "<title>Title [data]</title>" +
+                                "<secondary-title>File Name [file name]</secondary-title>" +
+                              "</titles>" +
+                              "<keywords>" +
+                                "<keyword>Keyword I</keyword>" +
+                                "<keyword>Keyword II</keyword>" +
+                              "</keywords>" +
+                              "<dates><year>2001</year></dates>" +
+                              "<publisher>Producer 1, ABC [producer], Producer 2, BCD [producer], " +
+                                "Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], " +
+                                "Dataverse [publisher], 2021" +
+                              "</publisher>" +
+                              "<edition>V1</edition>" +
+                              "<language>polish</language>" +
+                              "<language>italian</language>" +
+                              "<urls><web-urls><url>https://doi.org/10.18150/ZENON</url></web-urls></urls>" +
+                              "<electronic-resource-num>doi/10.18150/ZENON</electronic-resource-num>" +
+                            "</record>" +
+                          "</records>" +
+                        "</xml>");
     }
 
     @Test
@@ -139,6 +228,44 @@ class RdsCitationFormatsConverterTest {
                         "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1");
     }
 
+    @Test
+    @DisplayName("Should create citation with translated constants for different locale")
+    void toString__different_locale() {
+
+        // given
+        CitationData citationData = createFullCitationData();
+
+
+        // when
+        String citation = converter.toString(citationData, Locale.forLanguageTag("pl"), false);
+
+        // then
+        assertThat(citation)
+                .isEqualTo("Author, The First; Author, The Second: \"Title\" [dane]. " +
+                        "Producer 1, ABC [producent], Producer 2, BCD [producent], Warsaw, 2001. " +
+                        "OtherId1, OtherId2, OtherId3. Distributor 1 [dystrybutor], Distributor 2 [dystrybutor], " +
+                        "Dataverse [wydawca], 2021. https://doi.org/10.18150/ZENON, V1");
+    }
+
+    @Test
+    @DisplayName("Should create citation for file")
+    void toString__file() {
+
+        // given
+        CitationData citationData = createFullCitationDataForFile();
+
+
+        // when
+        String citation = converter.toString(citationData, TEST_LOCALE, false);
+
+        // then
+        assertThat(citation)
+                .isEqualTo("Author, The First; Author, The Second: \"Title\" [data]. " +
+                        "Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw, 2001. " +
+                        "OtherId1, OtherId2, OtherId3. Distributor 1 [distributor], Distributor 2 [distributor], " +
+                        "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1, File Name [file name], doi:10.18150/ZENON_F");
+    }
+
     // -------------------- PRIVATE --------------------
 
     private CitationData createFullCitationData() {
@@ -158,9 +285,16 @@ class RdsCitationFormatsConverterTest {
                 .setRootDataverseName("Dataverse")
                 .setReleaseYear("2021")
                 .setYear("2019")
-                .setPersistentId(new GlobalId("doi:10.18150/ZENON"))
+                .setPidOfDataset(new GlobalId("doi:10.18150/ZENON"))
                 .setVersion("V1");
         return data;
+    }
+
+    private CitationData createFullCitationDataForFile() {
+        return createFullCitationData()
+                .setDirect(true)
+                .setFileTitle("File Name")
+                .setPidOfFile(new GlobalId("doi:10.18150/ZENON_F"));
     }
 
 }
