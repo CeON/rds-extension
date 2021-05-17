@@ -86,7 +86,7 @@ class RdsCitationFormatsConverterTest {
                 "LA  - polish\r\n" +
                 "LA  - italian\r\n" +
                 "PY  - 2001///\r\n" +
-                "DO  - doi:10.18150/ZENON\r\n" +
+                "DO  - 10.18150/ZENON\r\n" +
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
                 "ET  - V1\r\n" +
                 "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
@@ -113,7 +113,7 @@ class RdsCitationFormatsConverterTest {
                 "LA  - polish\r\n" +
                 "LA  - italian\r\n" +
                 "PY  - 2001///\r\n" +
-                "DO  - doi:10.18150/ZENON\r\n" +
+                "DO  - 10.18150/ZENON\r\n" +
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
                 "ET  - V1\r\n" +
                 "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
@@ -222,7 +222,7 @@ class RdsCitationFormatsConverterTest {
 
         // then
         assertThat(citation)
-                .isEqualTo("Author, The First; Author, The Second: \"Title\" [data]. " +
+                .isEqualTo("Author, The First; Author, The Second: Title [data]. " +
                         "Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw, 2001. " +
                         "OtherId1, OtherId2, OtherId3. Distributor 1 [distributor], Distributor 2 [distributor], " +
                         "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1");
@@ -241,7 +241,7 @@ class RdsCitationFormatsConverterTest {
 
         // then
         assertThat(citation)
-                .isEqualTo("Author, The First; Author, The Second: \"Title\" [dane]. " +
+                .isEqualTo("Author, The First; Author, The Second: Title [dane]. " +
                         "Producer 1, ABC [producent], Producer 2, BCD [producent], Warsaw, 2001. " +
                         "OtherId1, OtherId2, OtherId3. Distributor 1 [dystrybutor], Distributor 2 [dystrybutor], " +
                         "Dataverse [wydawca], 2021. https://doi.org/10.18150/ZENON, V1");
@@ -260,10 +260,10 @@ class RdsCitationFormatsConverterTest {
 
         // then
         assertThat(citation)
-                .isEqualTo("Author, The First; Author, The Second: \"Title\" [data]. " +
+                .isEqualTo("Author, The First; Author, The Second: Title [data]. " +
                         "Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw, 2001. " +
                         "OtherId1, OtherId2, OtherId3. Distributor 1 [distributor], Distributor 2 [distributor], " +
-                        "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1, File Name [file name], doi:10.18150/ZENON_F");
+                        "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1. File Name [file name], doi:10.18150/ZENON_F");
     }
 
     // -------------------- PRIVATE --------------------
