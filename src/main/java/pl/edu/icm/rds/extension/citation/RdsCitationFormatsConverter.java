@@ -35,7 +35,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
     public String toString(CitationData data, Locale locale, boolean escapeHtml) {
         CitationBuilder citation = new CitationBuilder(escapeHtml)
                 .value(data.getAuthorsString()).endPart(": ")
-                .add("\"").value(data.getTitle()).add("\"")
+                .value(data.getTitle())
                 .add(getConstant(CitationConstants.DATA, locale)).endPart(". ");
         if (!data.getProducers().isEmpty()) {
             citation.value(joinProducers(data, locale)).endPartEmpty()
@@ -57,7 +57,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
             String filePid = Optional.ofNullable(data.getPidOfFile())
                     .map(GlobalId::asString)
                     .orElse(StringUtils.EMPTY);
-            citation.add(", ").value(data.getFileTitle()).add(getConstant(CitationConstants.FILE_NAME, locale))
+            citation.add(". ").value(data.getFileTitle()).add(getConstant(CitationConstants.FILE_NAME, locale))
                     .endPartEmpty()
                     .add(", ").value(filePid).endPartEmpty();
         }
@@ -108,7 +108,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         ris.line("PY", getMainProductionYear(data) + "///");
         GlobalId pid = data.getPidOfDataset();
         if (pid != null) {
-            ris.line("DO", pid.toString())
+            ris.line("DO", pid.getAuthority() + "/" + pid.getIdentifier())
                 .line("UR", extractDatasetPIDUrl(data));
         }
         ris.line("ET", data.getVersion())
