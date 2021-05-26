@@ -49,10 +49,17 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .value(joinDistributors(data, locale)).endPart()
                 .value(data.getRootDataverseName())
                     .add(getConstant(CitationConstants.PUBLISHER, locale)).endPart()
-                .rawValue(data.getReleaseYear()).endPart(". ");
+                .rawValue(data.getReleaseYear() != null ? data.getReleaseYear() : data.getYear()).endPart(". ");
         String pid = extractDatasetPIDUrl(data);
-        citation.urlValue(pid, pid).endPart()
-                .rawValue(data.getVersion()).endPartEmpty();
+        citation.urlValue(pid, pid);
+
+        if(data.getVersion() != null) {
+            citation.endPart()
+                    .rawValue(data.getVersion()).endPartEmpty();
+        } else {
+            citation.endPartEmpty();
+        }
+
         if (shouldAddFileName(data)) {
             String filePid = Optional.ofNullable(data.getPidOfFile())
                     .map(GlobalId::asString)
@@ -73,24 +80,42 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .add("@misc{")
                 .add(pid.getIdentifier() + "_" + data.getYear() + ",\r\n")
                 .line("author", String.join(" and ", data.getAuthors()))
-                .line("doi", pid.getAuthority() + "/" + pid.getIdentifier())
-                .line("edition", data.getVersion());
+                .line("doi", pid.getAuthority() + "/" + pid.getIdentifier());
+
+        if (data.getVersion() != null) {
+            bibtex.line("edition", data.getVersion());
+        }
+
         if (!data.getKeywords().isEmpty()) {
             bibtex.line("keywords", String.join(", ", data.getKeywords()));
         }
-        bibtex.line("publisher", createPublishingData(data, locale))
-                .line("title", data.getTitle(),
+        if (!data.getProducers().isEmpty() || !data.getDistributors().isEmpty()) {
+            bibtex.line("publisher", createPublishingData(data, locale));
+        }
+
+        bibtex.line("title", data.getTitle(),
                     s -> bibtex.mapValue(s, "{", getConstant(CitationConstants.DATA, locale) + "},"));
+
         String pidUrl = pid.toURL() != null ? pid.toURL().toString() : StringUtils.EMPTY;
-        String fileName = shouldAddFileName(data)
-                ? "; " + data.getFileTitle() + getConstant(CitationConstants.FILE_NAME, locale)
-                : StringUtils.EMPTY;
         String filePid = shouldAddFileName(data) && data.getPidOfFile() != null
                 ? ", " + data.getPidOfFile().asString() : StringUtils.EMPTY;
+
         bibtex.line("url", pidUrl, s -> bibtex.mapValue(s, "{", "}"))
-                .line("year", getMainProductionYear(data))
-                .line("note", "Edition: " + data.getVersion() + fileName + filePid)
-                .add("}\r\n");
+                .line("year", getMainProductionYear(data) != null ? getMainProductionYear(data) : data.getYear());
+
+        if (data.getVersion() !=  null) {
+            String fileName = shouldAddFileName(data)
+                    ? "; " + data.getFileTitle() + getConstant(CitationConstants.FILE_NAME, locale)
+                    : StringUtils.EMPTY;
+            bibtex.line("note", "Edition: " + data.getVersion() + fileName + filePid);
+        } else if (shouldAddFileName(data)) {
+            String fileName = shouldAddFileName(data)
+                    ? data.getFileTitle() + getConstant(CitationConstants.FILE_NAME, locale)
+                    : StringUtils.EMPTY;
+            bibtex.line("note", "Edition: " + fileName + filePid);
+        }
+
+        bibtex.add("}\r\n");
         return bibtex.toString();
     }
 
@@ -105,15 +130,21 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         }
         ris.lines("LA", data.getLanguages());
 
-        ris.line("PY", getMainProductionYear(data) + "///");
+        ris.line("PY", (getMainProductionYear(data) != null ? getMainProductionYear(data) : data.getYear()) + "///");
         GlobalId pid = data.getPidOfDataset();
         if (pid != null) {
             ris.line("DO", pid.getAuthority() + "/" + pid.getIdentifier())
                 .line("UR", extractDatasetPIDUrl(data));
         }
-        ris.line("ET", data.getVersion())
-                .line("PB", createPublishingData(data, locale))
-                .line("ER", ""); // closing element
+        if (data.getVersion() != null) {
+            ris.line("ET", data.getVersion());
+        }
+
+        if (!data.getProducers().isEmpty() || !data.getDistributors().isEmpty()) {
+            ris.line("PB", createPublishingData(data, locale));
+        }
+
+        ris.line("ER", ""); // closing element
         return ris.toString();
     }
 
@@ -163,11 +194,18 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         xml.endTag() // titles
                 .addTagCollection("keywords", "keyword", data.getKeywords())
                 .startTag("dates")
-                .addTagWithValue("year", getMainProductionYear(data))
-                .endTag() // dates
-                .addTagWithValue("publisher", createPublishingData(data, locale))
-                .addTagWithValue("edition", data.getVersion())
-                .addTagCollection("", "language", data.getLanguages());
+                .addTagWithValue("year", getMainProductionYear(data) != null ? getMainProductionYear(data) : data.getYear())
+                .endTag();// dates
+
+        if (!data.getProducers().isEmpty() || !data.getDistributors().isEmpty()) {
+            xml.addTagWithValue("publisher", createPublishingData(data, locale));
+        }
+
+        if (data.getVersion() != null) {
+            xml.addTagWithValue("edition", data.getVersion());
+        }
+
+        xml.addTagCollection("", "language", data.getLanguages());
         GlobalId pid = data.getPidOfDataset();
         if (pid != null) {
             xml.startTag("urls")
