@@ -37,9 +37,9 @@ class RdsCitationFormatsConverterTest {
                 "keywords = {Keyword I, Keyword II},\r\n" +
                 "publisher = {Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021},\r\n" +
                 "title = {Title [data]},\r\n" +
-                "url = {https://doi.org/10.18150/ZENON}\r\n" +
+                "url = {https://doi.org/10.18150/ZENON},\r\n" +
                 "year = {2001},\r\n" +
-                "note = {Edition: V1},\r\n" +
+                "note = {Edition: V1}\r\n" +
                 "}\r\n");
     }
 
@@ -58,8 +58,8 @@ class RdsCitationFormatsConverterTest {
                 "author = {Author, The First and Author, The Second},\r\n" +
                 "doi = {10.18150/ZENON},\r\n" +
                 "title = {Title [data]},\r\n" +
-                "url = {https://doi.org/10.18150/ZENON}\r\n" +
-                "year = {2019},\r\n" +
+                "url = {https://doi.org/10.18150/ZENON},\r\n" +
+                "year = {2019}\r\n" +
                 "}\r\n");
     }
 
@@ -81,9 +81,9 @@ class RdsCitationFormatsConverterTest {
                 "keywords = {Keyword I, Keyword II},\r\n" +
                 "publisher = {Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021},\r\n" +
                 "title = {Title [data]},\r\n" +
-                "url = {https://doi.org/10.18150/ZENON}\r\n" +
+                "url = {https://doi.org/10.18150/ZENON},\r\n" +
                 "year = {2001},\r\n" +
-                "note = {Edition: V1; File Name [file name], doi:10.18150/ZENON_F},\r\n" +
+                "note = {Edition: V1; File Name [file name], doi:10.18150/ZENON_F}\r\n" +
                 "}\r\n");
     }
 
@@ -102,9 +102,9 @@ class RdsCitationFormatsConverterTest {
                 "author = {Author, The First and Author, The Second},\r\n" +
                 "doi = {10.18150/ZENON},\r\n" +
                 "title = {Title [data]},\r\n" +
-                "url = {https://doi.org/10.18150/ZENON}\r\n" +
+                "url = {https://doi.org/10.18150/ZENON},\r\n" +
                 "year = {2019},\r\n" +
-                "note = {Edition: File Name [file name], doi:10.18150/ZENON_F},\r\n" +
+                "note = {File Name [file name], doi:10.18150/ZENON_F}\r\n" +
                 "}\r\n");
     }
 
@@ -131,7 +131,7 @@ class RdsCitationFormatsConverterTest {
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
                 "ET  - V1\r\n" +
                 "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
-                "ER  - \r\n");
+                "ER  - ");
     }
 
     @Test
@@ -153,7 +153,7 @@ class RdsCitationFormatsConverterTest {
                 "PY  - 2019///\r\n" +
                 "DO  - 10.18150/ZENON\r\n" +
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
-                "ER  - \r\n");
+                "ER  - ");
     }
 
     @Test
@@ -180,7 +180,7 @@ class RdsCitationFormatsConverterTest {
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
                 "ET  - V1\r\n" +
                 "PB  - Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw. Distributor 1 [distributor], Distributor 2 [distributor], Dataverse [publisher], 2021\r\n" +
-                "ER  - \r\n");
+                "ER  - ");
     }
 
     @Test
@@ -203,7 +203,7 @@ class RdsCitationFormatsConverterTest {
                 "PY  - 2019///\r\n" +
                 "DO  - 10.18150/ZENON\r\n" +
                 "UR  - https://doi.org/10.18150/ZENON\r\n" +
-                "ER  - \r\n");
+                "ER  - ");
     }
 
     @Test
