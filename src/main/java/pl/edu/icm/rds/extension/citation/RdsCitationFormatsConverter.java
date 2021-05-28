@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Alternative @Priority(10)
@@ -45,14 +46,16 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         }
         citation.value(data.getOtherIds().stream()
                     .filter(StringUtils::isNotBlank)
-                    .collect(Collectors.joining(", "))).endPart(". ")
+                    .collect(joining(", "))).endPart(". ")
                 .value(joinDistributors(data, locale)).endPart()
                 .value(data.getRootDataverseName())
                     .add(getConstant(CitationConstants.PUBLISHER, locale)).endPart()
-                .rawValue(data.getReleaseYear()).endPart(". ");
+                .rawValue(data.getReleaseYear() != null ? data.getReleaseYear() : data.getYear()).endPart(". ");
         String pid = extractDatasetPIDUrl(data);
-        citation.urlValue(pid, pid).endPart()
-                .rawValue(data.getVersion()).endPartEmpty();
+
+        citation.urlValue(pid, pid).endPartEmpty()
+                .add(", ").rawValue(data.getVersion()).endPartEmpty();
+
         if (shouldAddFileName(data)) {
             String filePid = Optional.ofNullable(data.getPidOfFile())
                     .map(GlobalId::asString)
@@ -73,24 +76,42 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .add("@misc{")
                 .add(pid.getIdentifier() + "_" + data.getYear() + ",\r\n")
                 .line("author", String.join(" and ", data.getAuthors()))
-                .line("doi", pid.getAuthority() + "/" + pid.getIdentifier())
-                .line("edition", data.getVersion());
+                .line("doi", pid.getAuthority() + "/" + pid.getIdentifier());
+
+        if (data.getVersion() != null) {
+            bibtex.line("edition", data.getVersion());
+        }
+
         if (!data.getKeywords().isEmpty()) {
             bibtex.line("keywords", String.join(", ", data.getKeywords()));
         }
-        bibtex.line("publisher", createPublishingData(data, locale))
-                .line("title", data.getTitle(),
+
+        String publishingData = createPublishingData(data, locale);
+        if (StringUtils.isNotBlank(publishingData)) {
+            bibtex.line("publisher", publishingData);
+        }
+
+        bibtex.line("title", data.getTitle(),
                     s -> bibtex.mapValue(s, "{", getConstant(CitationConstants.DATA, locale) + "},"));
+
         String pidUrl = pid.toURL() != null ? pid.toURL().toString() : StringUtils.EMPTY;
-        String fileName = shouldAddFileName(data)
-                ? "; " + data.getFileTitle() + getConstant(CitationConstants.FILE_NAME, locale)
-                : StringUtils.EMPTY;
         String filePid = shouldAddFileName(data) && data.getPidOfFile() != null
                 ? ", " + data.getPidOfFile().asString() : StringUtils.EMPTY;
-        bibtex.line("url", pidUrl, s -> bibtex.mapValue(s, "{", "}"))
-                .line("year", getMainProductionYear(data))
-                .line("note", "Edition: " + data.getVersion() + fileName + filePid)
-                .add("}\r\n");
+
+        bibtex.line("url", pidUrl, s -> bibtex.mapValue(s, "{", "},"))
+                .line("year", getMainProductionYear(data) != null ? getMainProductionYear(data) : data.getYear());
+
+        String fileName = shouldAddFileName(data)
+                ? data.getFileTitle() + getConstant(CitationConstants.FILE_NAME, locale)
+                : StringUtils.EMPTY;
+        String noteEditionPart = data.getVersion() !=  null ? "Edition: " + data.getVersion() : StringUtils.EMPTY;
+        String noteFilePart = fileName + filePid;
+        String note = Stream.of(noteEditionPart, noteFilePart).filter(s -> !s.isEmpty()).collect(joining("; "));
+        if (!note.isEmpty()) {
+            bibtex.line("note", note);
+        }
+
+        bibtex.removeLastDelimiter(",\r\n").add("\r\n").add("}\r\n");
         return bibtex.toString();
     }
 
@@ -105,15 +126,21 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         }
         ris.lines("LA", data.getLanguages());
 
-        ris.line("PY", getMainProductionYear(data) + "///");
+        ris.line("PY", (getMainProductionYear(data) != null ? getMainProductionYear(data) : data.getYear()) + "///");
         GlobalId pid = data.getPidOfDataset();
         if (pid != null) {
             ris.line("DO", pid.getAuthority() + "/" + pid.getIdentifier())
                 .line("UR", extractDatasetPIDUrl(data));
         }
-        ris.line("ET", data.getVersion())
-                .line("PB", createPublishingData(data, locale))
-                .line("ER", ""); // closing element
+        if (data.getVersion() != null) {
+            ris.line("ET", data.getVersion());
+        }
+
+        if (!data.getProducers().isEmpty() || !data.getDistributors().isEmpty()) {
+            ris.line("PB", createPublishingData(data, locale));
+        }
+
+        ris.line("ER", ""); // closing element
         return ris.toString();
     }
 
@@ -163,11 +190,18 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         xml.endTag() // titles
                 .addTagCollection("keywords", "keyword", data.getKeywords())
                 .startTag("dates")
-                .addTagWithValue("year", getMainProductionYear(data))
-                .endTag() // dates
-                .addTagWithValue("publisher", createPublishingData(data, locale))
-                .addTagWithValue("edition", data.getVersion())
-                .addTagCollection("", "language", data.getLanguages());
+                .addTagWithValue("year", getMainProductionYear(data) != null ? getMainProductionYear(data) : data.getYear())
+                .endTag();// dates
+
+        if (!data.getProducers().isEmpty() || !data.getDistributors().isEmpty()) {
+            xml.addTagWithValue("publisher", createPublishingData(data, locale));
+        }
+
+        if (data.getVersion() != null) {
+            xml.addTagWithValue("edition", data.getVersion());
+        }
+
+        xml.addTagCollection("", "language", data.getLanguages());
         GlobalId pid = data.getPidOfDataset();
         if (pid != null) {
             xml.startTag("urls")
@@ -193,7 +227,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
     private String joinDistributors(CitationData data, Locale locale) {
         return data.getDistributors().stream()
                 .map(d -> d + getConstant(CitationConstants.DISTRIBUTOR, locale))
-                .collect(Collectors.joining(", "));
+                .collect(joining(", "));
     }
 
     private String joinProducers(CitationData data, Locale locale) {
@@ -202,21 +236,30 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                         ? p.getName() + ", " + p.getAffiliation()
                         : p.getName())
                 .map(p -> p + getConstant(CitationConstants.PRODUCER, locale))
-                .collect(Collectors.joining(", "));
+                .collect(joining(", "));
     }
 
     private String createPublishingData(CitationData data, Locale locale) {
         String producers = !data.getProducers().isEmpty()
                 ? Stream.of(joinProducers(data, locale), data.getProductionPlace())
                 .filter(StringUtils::isNotBlank)
-                .collect(Collectors.joining(", ")) + ". "
+                .collect(joining(", ")) + ". "
                 : "";
-        String citationEnd = Stream.of(joinDistributors(data, locale),
-                data.getRootDataverseName() + getConstant(CitationConstants.PUBLISHER, locale),
-                getAuxiliaryProductionYear(data))
+        String distributors = Stream.of(joinDistributors(data, locale))
                 .filter(StringUtils::isNotBlank)
-                .collect(Collectors.joining(", "));
-        return producers + citationEnd;
+                .collect(joining(", "));
+
+        String rootDvName = StringUtils.isNotBlank(data.getRootDataverseName()) ?
+                ", " + data.getRootDataverseName() + getConstant(CitationConstants.PUBLISHER, locale) : StringUtils.EMPTY;
+
+        String productionYear = StringUtils.isNotBlank(getAuxiliaryProductionYear(data))
+                ? ", " + getAuxiliaryProductionYear(data) : EMPTY;
+
+        if(StringUtils.isNotBlank(producers) || StringUtils.isNotBlank(distributors) || StringUtils.isNotBlank(rootDvName)) {
+            return producers + distributors + rootDvName + productionYear;
+        }
+
+        return EMPTY;
     }
 
     private String extractDatasetPIDUrl(CitationData data) {
