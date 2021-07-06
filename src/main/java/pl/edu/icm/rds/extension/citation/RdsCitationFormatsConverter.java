@@ -50,7 +50,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .value(joinDistributors(data, locale)).endPart()
                 .value(data.getRootDataverseName())
                     .add(getConstant(CitationConstants.PUBLISHER, locale)).endPart()
-                .rawValue(data.getReleaseYear() != null ? data.getReleaseYear() : data.getYear()).endPart(". ");
+                .rawValue(data.getYear()).endPart(". ");
         String pid = extractDatasetPIDUrl(data);
 
         citation.urlValue(pid, pid).endPartEmpty()
