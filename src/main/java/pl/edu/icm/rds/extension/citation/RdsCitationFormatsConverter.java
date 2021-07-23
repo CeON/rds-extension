@@ -51,18 +51,14 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
                 .value(data.getRootDataverseName())
                     .add(getConstant(CitationConstants.PUBLISHER, locale)).endPart()
                 .rawValue(data.getYear()).endPart(". ");
-        String pid = extractDatasetPIDUrl(data);
+        String pid = extractPIDUrl(data.getPersistentId());
 
         citation.urlValue(pid, pid).endPartEmpty()
                 .add(", ").rawValue(data.getVersion()).endPartEmpty();
 
         if (shouldAddFileName(data)) {
-            String filePid = Optional.ofNullable(data.getPidOfFile())
-                    .map(GlobalId::asString)
-                    .orElse(StringUtils.EMPTY);
-            citation.add(". ").value(data.getFileTitle()).add(getConstant(CitationConstants.FILE_NAME, locale))
-                    .endPartEmpty()
-                    .add(", ").value(filePid).endPartEmpty();
+            citation.add(", ").value(data.getFileTitle()).add(getConstant(CitationConstants.FILE_NAME, locale))
+                    .endPartEmpty();
         }
         return citation.toString();
     }
@@ -130,7 +126,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         GlobalId pid = data.getPidOfDataset();
         if (pid != null) {
             ris.line("DO", pid.getAuthority() + "/" + pid.getIdentifier())
-                .line("UR", extractDatasetPIDUrl(data));
+                .line("UR", extractPIDUrl(data.getPidOfDataset()));
         }
         if (data.getVersion() != null) {
             ris.line("ET", data.getVersion());
@@ -206,7 +202,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         if (pid != null) {
             xml.startTag("urls")
                     .startTag("web-urls")
-                    .addTagWithValue("url", extractDatasetPIDUrl(data))
+                    .addTagWithValue("url", extractPIDUrl(data.getPidOfDataset()))
                     .endTag() // web-urls
                     .endTag(); // urls
         }
@@ -221,7 +217,7 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
     }
 
     private boolean shouldAddFileName(CitationData data) {
-        return data.isDirect() && isNotBlank(data.getFileTitle());
+        return /* data.isDirect() && */ isNotBlank(data.getFileTitle());
     }
 
     private String joinDistributors(CitationData data, Locale locale) {
@@ -262,8 +258,8 @@ public class RdsCitationFormatsConverter extends AbstractCitationFormatsConverte
         return EMPTY;
     }
 
-    private String extractDatasetPIDUrl(CitationData data) {
-        return Optional.ofNullable(data.getPidOfDataset())
+    private String extractPIDUrl(GlobalId globalId) {
+        return Optional.ofNullable(globalId)
                 .map(GlobalId::toURL)
                 .map(URL::toString)
                 .orElse(StringUtils.EMPTY);

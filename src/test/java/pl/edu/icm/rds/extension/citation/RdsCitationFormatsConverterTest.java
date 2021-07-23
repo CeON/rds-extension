@@ -378,7 +378,7 @@ class RdsCitationFormatsConverterTest {
                 .isEqualTo("Author, The First; Author, The Second: Title [data]. " +
                         "Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw, 2001. " +
                         "OtherId1, OtherId2, OtherId3. Distributor 1 [distributor], Distributor 2 [distributor], " +
-                        "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1");
+                        "Dataverse [publisher], 2019. https://doi.org/10.18150/ZENON, V1");
     }
 
     @Test
@@ -414,7 +414,7 @@ class RdsCitationFormatsConverterTest {
                 .isEqualTo("Author, The First; Author, The Second: Title [dane]. " +
                         "Producer 1, ABC [producent], Producer 2, BCD [producent], Warsaw, 2001. " +
                         "OtherId1, OtherId2, OtherId3. Distributor 1 [dystrybutor], Distributor 2 [dystrybutor], " +
-                        "Dataverse [wydawca], 2021. https://doi.org/10.18150/ZENON, V1");
+                        "Dataverse [wydawca], 2019. https://doi.org/10.18150/ZENON, V1");
     }
 
     @Test
@@ -433,7 +433,7 @@ class RdsCitationFormatsConverterTest {
                 .isEqualTo("Author, The First; Author, The Second: Title [data]. " +
                         "Producer 1, ABC [producer], Producer 2, BCD [producer], Warsaw, 2001. " +
                         "OtherId1, OtherId2, OtherId3. Distributor 1 [distributor], Distributor 2 [distributor], " +
-                        "Dataverse [publisher], 2021. https://doi.org/10.18150/ZENON, V1. File Name [file name], doi:10.18150/ZENON_F");
+                        "Dataverse [publisher], 2019. https://doi.org/10.18150/ZENON, V1, File Name [file name]");
     }
 
     @Test
@@ -450,7 +450,7 @@ class RdsCitationFormatsConverterTest {
         // then
         assertThat(citation)
                 .isEqualTo("Author, The First; Author, The Second: Title [data]. " +
-                        "2019. https://doi.org/10.18150/ZENON. File Name [file name], doi:10.18150/ZENON_F");
+                        "2019. https://doi.org/10.18150/ZENON, File Name [file name]");
     }
 
     // -------------------- PRIVATE --------------------
@@ -465,14 +465,15 @@ class RdsCitationFormatsConverterTest {
         data.getOtherIds().addAll(Arrays.asList("OtherId1", "OtherId2", "OtherId3"));
         data.getKeywords().addAll(Arrays.asList("Keyword I", "Keyword II"));
         data.getLanguages().addAll(Arrays.asList("polish", "italian"));
-
+        GlobalId globalId = new GlobalId("doi:10.18150/ZENON");
         data.setTitle("Title")
                 .setProductionPlace("Warsaw")
                 .setProductionDate("2001")
                 .setRootDataverseName("Dataverse")
                 .setReleaseYear("2021")
                 .setYear("2019")
-                .setPidOfDataset(new GlobalId("doi:10.18150/ZENON"))
+                .setPersistentId(globalId)
+                .setPidOfDataset(globalId)
                 .setVersion("V1");
         return data;
     }
@@ -487,10 +488,12 @@ class RdsCitationFormatsConverterTest {
     private CitationData createFullCitationDataForHarvested() {
         CitationData data = new CitationData();
         data.getAuthors().addAll(Arrays.asList("Author, The First", "Author, The Second"));
+        GlobalId globalId = new GlobalId("doi:10.18150/ZENON");
 
         data.setTitle("Title")
                 .setYear("2019")
-                .setPidOfDataset(new GlobalId("doi:10.18150/ZENON"));
+                .setPidOfDataset(globalId)
+                .setPersistentId(globalId);
         return data;
     }
 
