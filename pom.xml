@@ -15,20 +15,20 @@
         <war.source.directory>${project.build.directory}/generated-webapp</war.source.directory>
         <war.theme.path>resources/vecler</war.theme.path>
         <war.icon.path>resources/images</war.icon.path>
-        <dataverse.version>4.11</dataverse.version>
+        <dataverse.version>1.0.0-SNAPSHOT</dataverse.version>
         <junit.version>5.5.2</junit.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>edu.harvard.iq</groupId>
+            <groupId>pl.edu.icm.dataverse</groupId>
             <artifactId>dataverse-webapp</artifactId>
             <version>${dataverse.version}</version>
             <type>war</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>edu.harvard.iq</groupId>
+            <groupId>pl.edu.icm.dataverse</groupId>
             <artifactId>dataverse-webapp</artifactId>
             <version>${dataverse.version}</version>
             <classifier>classes</classifier>
@@ -175,7 +175,7 @@
                     <warSourceDirectory>${war.source.directory}</warSourceDirectory>
                     <overlays>
                         <overlay>
-                            <groupId>edu.harvard.iq</groupId>
+                            <groupId>pl.edu.icm.dataverse</groupId>
                             <artifactId>dataverse-webapp</artifactId>
                             <excludes>
                                 <exclude>${war.theme.path}/**</exclude>
