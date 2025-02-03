@@ -15,9 +15,16 @@
         <war.source.directory>${project.build.directory}/generated-webapp</war.source.directory>
         <war.theme.path>resources/vecler</war.theme.path>
         <war.icon.path>resources/images</war.icon.path>
-        <dataverse.version>1.0.0-SNAPSHOT</dataverse.version>
+        <dataverse.version>1.0.0</dataverse.version>
         <junit.version>5.5.2</junit.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>dataverse-releases</id>
+            <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
