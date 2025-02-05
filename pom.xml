@@ -197,4 +197,15 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>dataverse-releases</id>
+            <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>dataverse-snapshots</id>
+            <url>https://maven.ceon.pl/artifactory/drodb-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
