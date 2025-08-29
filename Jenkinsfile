@@ -32,7 +32,7 @@ pipeline {
                 always {
                     recordIssues(tools: [mavenConsole(), java()])
                     junit skipPublishingChecks: true, testResults: '**/target/surefire-reports/*.xml'
-            		jacoco()
+                    recordCoverage(tools: [[parser: 'JACOCO']])
             	}
             }
         }
