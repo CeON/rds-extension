@@ -16,7 +16,7 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_JENKINSCI')
+        ARTIFACTORY_DEPLOY=credentials('ICM_ARTIFACTORY_MADRYK')
         MAVEN_OPTS = "-Dmaven.repo.local=/home/jenkins/.m2/repository"
     }
 
