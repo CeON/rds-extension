@@ -15,29 +15,29 @@
         <war.source.directory>${project.build.directory}/generated-webapp</war.source.directory>
         <war.theme.path>resources/vecler</war.theme.path>
         <war.icon.path>resources/images</war.icon.path>
-        <dataverse.version>1.0.0</dataverse.version>
+        <fairchive.version>1.0.0</fairchive.version>
         <junit.version>5.5.2</junit.version>
     </properties>
 
     <repositories>
         <repository>
-            <id>dataverse-releases</id>
+            <id>fairchive-releases</id>
             <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>pl.edu.icm.dataverse</groupId>
-            <artifactId>dataverse-webapp</artifactId>
-            <version>${dataverse.version}</version>
+            <groupId>pl.edu.icm.fairchive</groupId>
+            <artifactId>fairchive-webapp</artifactId>
+            <version>${fairchive.version}</version>
             <type>war</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>pl.edu.icm.dataverse</groupId>
-            <artifactId>dataverse-webapp</artifactId>
-            <version>${dataverse.version}</version>
+            <groupId>pl.edu.icm.fairchive</groupId>
+            <artifactId>fairchive-webapp</artifactId>
+            <version>${fairchive.version}</version>
             <classifier>classes</classifier>
             <scope>provided</scope>
         </dependency>
@@ -182,8 +182,8 @@
                     <warSourceDirectory>${war.source.directory}</warSourceDirectory>
                     <overlays>
                         <overlay>
-                            <groupId>pl.edu.icm.dataverse</groupId>
-                            <artifactId>dataverse-webapp</artifactId>
+                            <groupId>pl.edu.icm.fairchive</groupId>
+                            <artifactId>fairchive-webapp</artifactId>
                             <excludes>
                                 <exclude>${war.theme.path}/**</exclude>
                                 <exclude>${war.icon.path}/**</exclude>
@@ -200,11 +200,11 @@
 
     <distributionManagement>
         <repository>
-            <id>dataverse-releases</id>
+            <id>fairchive-releases</id>
             <url>https://maven.ceon.pl/artifactory/drodb-releases</url>
         </repository>
         <snapshotRepository>
-            <id>dataverse-snapshots</id>
+            <id>fairchive-snapshots</id>
             <url>https://maven.ceon.pl/artifactory/drodb-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
